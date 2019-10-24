@@ -1,60 +1,86 @@
 import React, { Component } from 'react'
 import Todoing from './Todoing';
 import Todoinput from './Todoinput';
+import Todofinish from './Todofinish';
 
 export default class Todolist extends Component {
     constructor(){
         super();
         this.state = {
-            todo: [1,2,3]
-        }
-
-        // var arr = [1,2,{a:100}];
-        // 深拷贝
-        // var b = JSON.parse(JSON.stringify(arr));
-        // b[2].a = 200;
-        // console.log(arr);
-
-        // 对象的拷贝
-        var a= {a:100,b:200};
-        // var o = Object.assign({},a);
-        // console.log(o===a);
-        // console.log(o);
-        // Object.keys返回由属性名组成的一个数组
-        Object.keys(a).forEach((item)=>{
-            console.log(item);
-            console.log(a[item]);
-        })
-        // 尽量不用for in
-        // for(var item in a){
-        //     console.log(a);
-        // }
+            todo:localStorage.getItem('todo')?localStorage.getItem('todo').split(','):[],
+            todo1:localStorage.getItem('todo1')?localStorage.getItem('todo1').split(','):[]
+                }
     }
     addItem = (msg)=>{
-        // this.state.todo.push(msg)
-        // console.log(this.state.todo)
         this.setState({
             todo: [...this.state.todo,msg]
-        })
-        console.log(msg);
+        },
+        ()=>{
+            localStorage.setItem('todo',this.state.todo);
+        }
+        )
     }
     delItem = (a)=>{
-        // this.state.todo.splice(a,1); //不要写
-        // 深拷贝\浅拷贝
-        // 状态（state）：
-        // 1、不要直接改变、处理状态
         var todo = [...this.state.todo];
         todo.splice(a,1);
-        // 2、setState是异步的
         this.setState(
-            {todo:todo}
+            {todo:todo},
+            ()=>{
+                localStorage.setItem('todo',this.state.todo);
+            }
+        )
+    }
+    transferItem=(a)=>{
+        var todo = [...this.state.todo];
+        var todo1 = [...this.state.todo1];
+        var msg=todo[a];
+        todo.splice(a,1);
+        this.setState({
+            todo:todo,
+            todo1: [...this.state.todo1,msg]
+        },
+        ()=>{
+            localStorage.setItem('todo1',this.state.todo1);
+            localStorage.setItem('todo',this.state.todo);
+        
+        }
+        )
+
+    }
+    returnItem=(a)=>{
+        var todo = [...this.state.todo];
+        var todo1 = [...this.state.todo1];
+        var msg=todo1[a];
+        todo1.splice(a,1);
+        this.setState({
+            todo1:todo1,
+            todo: [...this.state.todo,msg]
+        },
+        ()=>{
+            localStorage.setItem('todo1',this.state.todo1);
+            localStorage.setItem('todo',this.state.todo);
+        
+        }
+        )
+
+    }
+    delItem1 = (a)=>{
+       
+        var todo1 = [...this.state.todo1];
+        todo1.splice(a,1);
+        this.setState(
+            {todo1:todo1},
+            ()=>{
+                localStorage.setItem('todo1',this.state.todo1);
+            }
         )
     }
     render() {
         return (
             <div>
                 <Todoinput addTodo={this.addItem}/>
-                <Todoing delTodo={this.delItem} todo={this.state.todo}/>
+                <Todoing delTodo={this.delItem} todo={this.state.todo} transferTodo={this.transferItem} todo1={this.state.todo1} />
+                <Todofinish delTodo1={this.delItem1} todo1={this.state.todo1} returnTodo={this.returnItem} todo={this.state.todo} />
             </div>
         )
     }
